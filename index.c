@@ -3,7 +3,7 @@
 #include <stdlib.h>
 // #include <fstream>
 // #include <time.h>
-// #include <unistd.h>
+#include <unistd.h>
 // #include <conio.h>
 
 #define MAXLEN 30
@@ -36,8 +36,6 @@ void registerCompany()
 {
 	system("clear");
 	char cname[MAXLEN];
-	bool check = true;
-	size_t sz = 0;
 
 	printf("Sign Up as a Company/University\n");
 	printf("\n-------------------------------------------\n\n");
@@ -49,7 +47,7 @@ void registerCompany()
 
 	company* newbie =(company *) malloc(sizeof(company));
 
-	// Check if company is Already registered
+	// Check in database file ,if company is Already registered
 	FILE * cf= fopen("databaseC", "rb");
     while (!feof(cf)) {
         fread(newbie, sizeof(company), 1, cf);
@@ -57,8 +55,10 @@ void registerCompany()
     	if (strcmp(newbie->name,cname) == 0) {
     		fclose(cf);		
     		free(newbie);
-    		printf("\nCompany already registered");
-    		printf("\nRe-Directed to Login Page");
+    		printf("\nCompany already registered \
+    				\nRe-Directed to Login Page");
+    		printf("\n");
+    		sleep(3);
     		return ;
     	}	
     }
@@ -73,17 +73,14 @@ void registerCompany()
 	fgets(newbie->address,MAXLEN,stdin);
 	fgets(newbie->address,MAXLEN,stdin);
 
-	char t1[MAXLEN],t2[MAXLEN];
-	t1[0] = 'a',t2[0] = 'b';
+	char *t1,*t2;
+	do {
+		// encrypted password feature
+		t1 = getpass("\nSet your Password (Password won't be shown to maintain Secrecy) :  ");
+		t2 = getpass("\nRe-Type your Password again to Confirm :  ");
+			break;
+	} while(strcmp(t1,t2) == 0);
 
-	while (strcmp(t1,t2)) {
-		// Add encrypted password feature
-		printf("\nSet your Password  :  ");
-		fgets(t1,MAXLEN,stdin);
-	
-		printf("\nRe-Type your Password again to Confirm :  ");
-		fgets(t2,MAXLEN,stdin);
-	}
 	strcpy(newbie->pswrd,t1);
 
 	FILE * file= fopen("databaseC", "a");
@@ -95,16 +92,21 @@ void registerCompany()
 	return;
 }
 
+void registerStudent()
+{
+	
+}
+
 int printWelcome()   // Use reference to avoid multiple local variables
 {
 	int choice;
 	system("clear");
-	printf("\nWelcome to EMS...");
+	printf("Welcome to EMS...");
 	printf("\n1.Sign Up as a Company or University");
 	printf("\n2.Sign Up as a Student");
 	printf("\n3.Login as a Company");
 	printf("\n4.Login as a Student");
-	printf("\n5.Exit\n");
+	printf("\n5.Exit\nChoose an Option from the above  :  ");
 	scanf("%d",&choice);
 	return choice;
 }
