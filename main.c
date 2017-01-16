@@ -8,22 +8,22 @@ int main(int argv, char **argc) {
 }
 
 bool checkValiditymob(char *mob) {
-	int j;
-	bool ch = true;
-	if (strlen(mob) != 10) {
-		ch = false;
-	} else {
-	    for (j = 0; j < strlen(mob); j++) {
-	      if(!(((mob[j] - '0') >= 0) && ((mob[j] - '0') <= 9))) {
-	        ch = false;
-	        break;
-	      }
-	    }
-	}
-    return ch;
+  int j;
+  bool ch = true;
+  if (strlen(mob) != 10) {
+    ch = false;
+  } else {
+    for (j = 0; j < strlen(mob); j++) {
+      if (!(((mob[j] - '0') >= 0) && ((mob[j] - '0') <= 9))) {
+        ch = false;
+        break;
+      }
+    }
+  }
+  return ch;
 }
 
-void registerUser(company* newbie,char *cname) {
+void registerUser(company *newbie, char *cname) {
   // company* newbie = (company *)malloc(sizeof(company));
   strcpy(newbie->name, cname);
 
@@ -56,7 +56,7 @@ void registerUser(company* newbie,char *cname) {
   // return newbie;
 }
 
-int authenticate(bool chc,char* getKey) {
+int authenticate(bool chc, char *getKey) {
   if (!chc) {
     printf("User not registered\n");
     printf("\nRe-Directed to Welcome Page");
@@ -103,14 +103,14 @@ void registerCompany() {
       fclose(cf);
       free(newbie);
       printf("\nCompany already registered \
-    				\nRe-Directed to Welcome Page");
+            \nRe-Directed to Welcome Page");
       printf("\n");
       sleep(3);
       return;
     }
   }
   fclose(cf);
-  registerUser(newbie,cname);
+  registerUser(newbie, cname);
 
   FILE *file = fopen(".databaseC", "a");
   if (file != NULL) {
@@ -148,8 +148,8 @@ void loginCompany() {
   }
 
   fclose(cf);
-  int status = authenticate(chc,getKey);
-  if (status == -1) 
+  int status = authenticate(chc, getKey);
+  if (status == -1)
     return;
   return homepageC();
 }
@@ -177,7 +177,7 @@ void registerStudent() {
       fclose(cf);
       free(newbie);
       printf("\nStudent already registered \
-    				\nRe-Directed to Welcome Page");
+            \nRe-Directed to Welcome Page");
       printf("\n");
       sleep(3);
       return;
@@ -185,7 +185,7 @@ void registerStudent() {
   }
   fclose(cf);
 
-  registerUser(&newbie->stud,sname);
+  registerUser(&newbie->stud, sname);
   printf("\nEnter your Roll-No  :  ");
   scanf("%s", newbie->rollno);
 
@@ -225,8 +225,8 @@ void loginStudent() {
   }
 
   fclose(cf);
-  int status = authenticate(chc,getKey);
-  if (status == -1) 
+  int status = authenticate(chc, getKey);
+  if (status == -1)
     return;
   return homepageS();
 }
@@ -250,28 +250,28 @@ void run() {
     choice = printWelcome();
 
     switch (choice) {
-	    case RC:
-	      registerCompany();
-	      break;
+        case RC:
+          registerCompany();
+          break;
 
-	    case RS:
-	      registerStudent();
-	      break;
+        case RS:
+          registerStudent();
+          break;
 
-	    case LC:
-	      loginCompany();
-	      break;
+        case LC:
+          loginCompany();
+          break;
 
-	    case LS:
-	      loginStudent();
-	      break;
+        case LS:
+          loginStudent();
+          break;
 
-	    case EXIT:
-	      printf("\nGood Bye from EMS..\n");
-	      return;
+        case EXIT:
+          printf("\nGood Bye from EMS..\n");
+          return;
 
-	    default:
-	      printf("\nPlease Enter Valid Chocie");
+        default:
+          printf("\nPlease Enter Valid Chocie");
     }
   }
 }
