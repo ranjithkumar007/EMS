@@ -53,7 +53,6 @@ void registerUser(company *newbie, char *cname) {
   } while (strcmp(t1, t2) != 0);
 
   strcpy(newbie->pswrd, t1);
-  // return newbie;
 }
 
 int authenticate(bool chc, char *getKey) {
@@ -121,15 +120,176 @@ void registerCompany() {
   return;
 }
 
-void homepageC() {
-  system("clear");
-  printf("\nLogin Successful\n");
+int makeQuestionPaper(ques Q[]) {
+	system("clear");
+	printf("\nSetting a New Question Paper\n");
+	printf("\n-------------------------------------------\n\n");
+	printf("Enter number of questions  :  ");
+	int k = 0,countQues;
+	scanf("%d",&countQues);
+
+	for (;k<countQues;k++) {
+		system("clear");
+		printf("\nQuestion Number - %d\n",k+1);
+		printf("\n-------------------------------------------\n\n");
+		printf("Enter the question  (press ? to end question):  \n");
+		int cp  = 0;
+		char c;
+		while((c = getchar() )!= '?' && cp<MAXLENQB) {
+			Q[k].question[cp++] = c;
+		}
+		Q[k].quesno = k;
+		int o = 0;
+		for (;o<4;o++) {
+			printf("\nEnter Option %d : ",o+1);
+			int cp  = 0;
+			while((c = getchar() )!= ';' && cp<MAXLENQB) {
+				Q[k].opt[o][cp++] = c;
+			}
+		}
+		printf("\nEnter correct answer (option no) for this question  :  ");
+		scanf("%d",&Q[k].correctAns);
+	}
+	// TO-DO 
+	// Add a preview
+	return countQues;
+}
+
+void makeexam(company *user) {
+	system("clear");
+	printf("Making an exam\n");
+	printf("\n-------------------------------------------\n\n");
+	exam *newexam = (exam *)malloc(sizeof(exam));
+	FILE *file = fopen(".databaseExam","rb");
+	while(!feof(file)) {
+		fread(newexam,sizeof(exam),1,file);
+		if(strcmp(user->emailid,newexam->Cmpy.emailid) == 0) {
+			printf("\nYou have already made an exam ....Go to Question Bank for changes\n");
+			fclose(file);
+			sleep(3);
+			return ;
+		}
+	}
+	fclose(file);
+
+	printf("\nEnter coursename of the Exam  :  ");
+	fgets(newexam->coursename, MAXLEN, stdin);
+  	fgets(newexam->coursename, MAXLEN, stdin);
+
+  	//Update Course -IDs
+  	file = fopen(".lastSeenCID","rb");
+  	int lCID = 0;
+  	if(file!=NULL) {
+  		fread(&lCID,sizeof(int),1,file);
+  	}
+  	fclose(file);
+  	lCID++;
+
+  	file = fopen(".lastSeenCID","w");
+  	if (file != NULL) {
+  		fwrite(&lCID,sizeof(int),1,file);
+  		fclose(file);
+  	}
+
+  	newexam->courseID = lCID;
+  	newexam->Cmpy = *user;
+
+  	printf("\nEnter number of timeslots for the exam  :  ");
+  	scanf("%d",&newexam->countTslots);
+  	int k = 1;
+  	char tSlot[MAXT];
+  	for (;k!=newexam->countTslots+1;k++) {
+  		printf("\nEnter start time for time slot %d (HH:MM format and in 24-hour type):  ",k);
+  		scanf("%s",tSlot);
+  		strcpy(newexam->tS[k-1].starttime,tSlot);
+  		printf("\nEnter end time for time slot %d (HH:MM format and in 24-hour type):  ",k);
+  		scanf("%s",tSlot);
+  		strcpy(newexam->tS[k-1].endtime,tSlot);
+  		// TO-DO
+  		// Add Validity Check
+  		// Find duration of exam
+  	}
+  	newexam->countQues = makeQuestionPaper(newexam->Q);
+
+  	//write exam to a file
+  	file = fopen(".databaseExam","a");
+  	if (file != NULL) {
+  		fwrite(newexam,sizeof(exam),1,file);
+  		fclose(file);
+  	}
+
+  	printf("Done making question paper with %d questions",newexam->countQues);
+  	printf("\n");
+  	sleep(2);
+  	return;
+}
+
+// void ViewQB(company *user) {
+// 	system("clear");
+
+// }
+
+// void questionbank(company *user) {
+// 	while(1) {
+// 		system("clear");
+// 		printf("\n1.Edit Question Paper");
+// 		printf("\n2.View Question Paper");
+// 		printf("\n3.Go Back");
+// 		printf("\nChoose an option from the above  :  ");
+// 		int ch;
+// 		scanf("%d",&ch);
+// 		switch(ch) {
+// 			case 1 : break;
+// 			case 2 : break;
+// 			case 3 : return ;
+// 			default :printf("\nEnter a Valid Choice");
+// 					sleep(2);
+// 		}
+// 	}
+// 	return ;
+// }
+
+void homepageC(company *user) {
+  bool done = false;
+
+  while(1) {
+    system("clear");
+    if (!done) {
+      done = !done;
+      printf("\nLogin Successful\n");
+    }
+    printf("\n1.View Lists of Students enrolled for the exam");
+    printf("\n2.Open Question Bank");
+    printf("\n3.make an Exam");
+    printf("\n4.Change Password");
+    printf("\n5.Log out");
+    printf("\nEnter a choice from the above  :  ");
+    int choice;
+    
+    scanf("%d",&choice);
+    switch (choice) {
+      case VL: 
+              break;
+      case QB: //questionbank(user);break;
+      case TE : makeexam(user);
+              break;
+      case CP : 
+              break;
+      case LO: return ;
+      default :"\nPlease Enter a Valid Choice";
+      			sleep(2);
+    }
+  }
   return;
 }
 
 void loginCompany() {
   system("clear");
   char em[MAXLEN];
+
+  printf("Login as a Company\n");
+  printf("\n-------------------------------------------\n\n");
+
   printf("Enter your eMail-ID  :  ");
   scanf("%s", em);
 
@@ -151,7 +311,7 @@ void loginCompany() {
   int status = authenticate(chc, getKey);
   if (status == -1)
     return;
-  return homepageC();
+  return homepageC(user);
 }
 
 void registerStudent() {
@@ -207,6 +367,9 @@ void homepageS() {
 void loginStudent() {
   system("clear");
   char em[MAXLEN];
+
+  printf("Login as a Sudent\n");
+  printf("\n-------------------------------------------\n\n");
   printf("Enter your eMail-ID  :  ");
   scanf("%s", em);
 
@@ -231,6 +394,16 @@ void loginStudent() {
   return homepageS();
 }
 
+void loginAdmin() {
+  system("clear");
+  char *adminPassword = "aimskyhigh";
+  bool chc = true;
+  int status = authenticate(chc, adminPassword);
+  if (status == -1)
+    return;
+  // return homepageA(); 
+}
+
 int printWelcome() {
   int choice;
   system("clear");
@@ -239,7 +412,8 @@ int printWelcome() {
   printf("\n2.Sign Up as a Student");
   printf("\n3.Login as a Company");
   printf("\n4.Login as a Student");
-  printf("\n5.Exit\nChoose an Option from the above  :  ");
+  printf("\n5.Login as Admin");
+  printf("\n6.Exit\nChoose an Option from the above  :  ");
   scanf("%d", &choice);
   return choice;
 }
@@ -264,6 +438,10 @@ void run() {
 
         case LS:
           loginStudent();
+          break;
+
+        case AD:
+          loginAdmin();
           break;
 
         case EXIT:
