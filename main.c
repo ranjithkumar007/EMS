@@ -23,6 +23,15 @@ bool checkValiditymob(char *mob) {
   return ch;
 }
 
+char * simplify(char str[]) {
+	int i,len = strlen(str);
+	for (i = 0;i<len;i++) {
+		if (str[i] == '\n' || str[i] == '\t') 
+			str[i] = ' ';
+	}
+	return str;
+}
+
 void registerUser(company *newbie, char *cname) {
   // company* newbie = (company *)malloc(sizeof(company));
   strcpy(newbie->name, cname);
@@ -120,6 +129,26 @@ void registerCompany() {
   return;
 }
 
+void addQuestion(ques* Q) {
+	printf("Enter the question  (press ? to end question):  \n");
+	int cp  = 0;
+	char c;
+	while((c = getchar() )!= '?' && cp<MAXLENQB) {
+		Q->question[cp++] = c;
+	}
+	// Q->quesno = k;
+	int o = 0;
+	for (;o<4;o++) {
+		printf("\nEnter Option %d : ",o+1);
+		int cp  = 0;
+		while((c = getchar() )!= ';' && cp<MAXLENQB) {
+			Q->opt[o][cp++] = c;
+		}
+	}
+	printf("\nEnter correct answer (option no) for this question  :  ");
+	scanf("%d",&Q->correctAns);
+}
+
 int makeQuestionPaper(ques Q[]) {
 	system("clear");
 	printf("\nSetting a New Question Paper\n");
@@ -132,23 +161,7 @@ int makeQuestionPaper(ques Q[]) {
 		system("clear");
 		printf("\nQuestion Number - %d\n",k+1);
 		printf("\n-------------------------------------------\n\n");
-		printf("Enter the question  (press ? to end question):  \n");
-		int cp  = 0;
-		char c;
-		while((c = getchar() )!= '?' && cp<MAXLENQB) {
-			Q[k].question[cp++] = c;
-		}
-		Q[k].quesno = k;
-		int o = 0;
-		for (;o<4;o++) {
-			printf("\nEnter Option %d : ",o+1);
-			int cp  = 0;
-			while((c = getchar() )!= ';' && cp<MAXLENQB) {
-				Q[k].opt[o][cp++] = c;
-			}
-		}
-		printf("\nEnter correct answer (option no) for this question  :  ");
-		scanf("%d",&Q[k].correctAns);
+		addQuestion(&Q[k]);
 	}
 	// TO-DO 
 	// Add a preview
@@ -224,30 +237,95 @@ void makeexam(company *user) {
   	return;
 }
 
-// void ViewQB(company *user) {
-// 	system("clear");
+int checkQB(company *user,exam *lsexam) {
+	system("clear");
+	printf("Question Bank");
+	printf("\n-------------------------------------------\n\n");
+	// exam *lsexam = (exam *)malloc(sizeof(exam));
+	FILE *file = fopen(".databaseExam","rb");
+	bool chc = false;
+	if (file != NULL) {
+		while(!feof(file)) {
+			fread(lsexam,sizeof(exam),1,file);
+			if (strcmp(lsexam->Cmpy.emailid,user->emailid) ==0) {
+				chc = true;
+			}
+		}
+	}	
+	fclose(file);
+	if (!chc) {
+		printf("\nYou didn't Set a question paper yet...Go to Set an Exam");
+		printf("\n");
+		sleep(2);
+		return -1;
+	}
+	return 0;
+}
 
-// }
+int editQB(company *user) {
+	exam *lsexam = (exam *)malloc(sizeof(exam));
+	int k = checkQB(user,lsexam);
+	if (k==-1) return -1;
+	printf("\nEnter the question number you want to change  :  ");
+	scanf("%d",&k);
+	if (k>lsexam->countQues) {
+		printf("\nQuestion number %d not found",k);
+		sleep(2);
+		return -1;
+	}
+	system("clear");
+	printf("\nQuestion Number - %d\n",k);
+	printf("\n-------------------------------------------\n\n");
+	addQuestion(&lsexam->Q[k-1]);
+	printf("\n");
+	system("clear");
+	printf("Question Paper Updated Successfully\n");
+	sleep(2);
+	return 0;
+}
 
-// void questionbank(company *user) {
-// 	while(1) {
-// 		system("clear");
-// 		printf("\n1.Edit Question Paper");
-// 		printf("\n2.View Question Paper");
-// 		printf("\n3.Go Back");
-// 		printf("\nChoose an option from the above  :  ");
-// 		int ch;
-// 		scanf("%d",&ch);
-// 		switch(ch) {
-// 			case 1 : break;
-// 			case 2 : break;
-// 			case 3 : return ;
-// 			default :printf("\nEnter a Valid Choice");
-// 					sleep(2);
-// 		}
-// 	}
-// 	return ;
-// }
+int viewQB(company *user) {
+	exam *lsexam = (exam *)malloc(sizeof(exam));
+	int k = checkQB(user,lsexam);
+	if (k==-1) return -1;
+	for (k = 0;k<lsexam->countQues;k++) {
+		printf("\n\nQuestion %d.",k+1);
+		printf("\n%s?",simplify(lsexam->Q[k].question));
+		int o = 0;
+		for (;o<4;o++)
+			printf("\n%c)%s",'A'+o,simplify(lsexam->Q[k].opt[o]));
+	}
+	char c;
+	printf("\nPress Any Key to go back");
+	fflush(stdin);
+	while((c = getchar()) != '\n');
+	getchar();
+	return 0;
+}
+
+void questionbank(company *user) {
+	while(1) {
+		system("clear");
+		printf("Question Bank");
+		printf("\n-------------------------------------------\n\n");
+		printf("\n1.Edit Question Paper");
+		printf("\n2.View Question Paper");
+		printf("\n3.Go Back");
+		printf("\nChoose an option from the above  :  ");
+		int ch,k;
+		scanf("%d",&ch);
+		switch(ch) {
+			case 1 : k = editQB(user);
+					if(k == -1) return ;break;
+			case 2 : k = viewQB(user);
+					if (k == -1) return ;break;
+			case 3 : return ;
+			default :printf("\nEnter a Valid Choice");
+					sleep(2);
+		}
+	}
+	return ;
+}
 
 void homepageC(company *user) {
   bool done = false;
@@ -260,7 +338,7 @@ void homepageC(company *user) {
     }
     printf("\n1.View Lists of Students enrolled for the exam");
     printf("\n2.Open Question Bank");
-    printf("\n3.make an Exam");
+    printf("\n3.Set an Exam");
     printf("\n4.Change Password");
     printf("\n5.Log out");
     printf("\nEnter a choice from the above  :  ");
@@ -270,7 +348,7 @@ void homepageC(company *user) {
     switch (choice) {
       case VL: 
               break;
-      case QB: //questionbank(user);break;
+      case QB: questionbank(user);break;
       case TE : makeexam(user);
               break;
       case CP : 

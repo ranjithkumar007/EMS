@@ -6,9 +6,9 @@
 
 #define MAXLEN 30
 #define MAXT 10
-#define MAXLENQB 150
-#define MAXQUES 100
-#define MAXCAPACITY 100
+#define MAXLENQB 50
+#define MAXQUES 20
+#define MAXCAPACITY 10
 
 /// Enumerate Choices ///
 // Welcome Page
@@ -42,7 +42,7 @@ struct _student {
 typedef struct _student student;
 
 struct _ques{
-	int quesno;
+	// int quesno;
 	char question[MAXLENQB];
 	char opt[4][MAXLENQB];
 	int correctAns;
