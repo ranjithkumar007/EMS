@@ -26,6 +26,8 @@ struct _company {
   char address[MAXLEN];
   char pswrd[MAXLEN];
   char mobno[10];
+  // int revision;  // useful for changing password and updating enrolled student list.
+
   // TO-DO
   // char *AboutMe;
 };
@@ -35,6 +37,7 @@ typedef struct _company company;
 struct _student {
   company stud;
   char rollno[10];
+  int chosenSlot;
   // TO-DO
   // char *AboutMe;
 };
@@ -65,8 +68,7 @@ struct _exam {
 	int countSt;
 	ques Q[MAXQUES];
 	int countQues;
-	//24-hour format
-	timeslot tS[MAXT];
+	timeslot tS[MAXT];  //24-hour format
 	int countTslots;
 };
 

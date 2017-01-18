@@ -26,14 +26,13 @@ bool checkValiditymob(char *mob) {
 char * simplify(char str[]) {
 	int i,len = strlen(str);
 	for (i = 0;i<len;i++) {
-		if (str[i] == '\n' || str[i] == '\t') 
+		if (str[i] == '\n' || str[i] == '\t' || str[i] >122 || (str[i] < 65 && (str[i]<48 || str[i] > 57))) 
 			str[i] = ' ';
 	}
 	return str;
 }
 
 void registerUser(company *newbie, char *cname) {
-  // company* newbie = (company *)malloc(sizeof(company));
   strcpy(newbie->name, cname);
 
   printf("\nEnter your eMail-ID  :  ");
@@ -62,6 +61,7 @@ void registerUser(company *newbie, char *cname) {
   } while (strcmp(t1, t2) != 0);
 
   strcpy(newbie->pswrd, t1);
+  // newbie->revision = 1;
 }
 
 int authenticate(bool chc, char *getKey) {
@@ -129,14 +129,14 @@ void registerCompany() {
   return;
 }
 
-void addQuestion(ques* Q) {
+void addQuestion(ques *Q) {
 	printf("Enter the question  (press ? to end question):  \n");
 	int cp  = 0;
 	char c;
 	while((c = getchar() )!= '?' && cp<MAXLENQB) {
 		Q->question[cp++] = c;
 	}
-	// Q->quesno = k;
+
 	int o = 0;
 	for (;o<4;o++) {
 		printf("\nEnter Option %d : ",o+1);
@@ -144,9 +144,14 @@ void addQuestion(ques* Q) {
 		while((c = getchar() )!= ';' && cp<MAXLENQB) {
 			Q->opt[o][cp++] = c;
 		}
+		while(cp<20) {
+			Q->opt[o][cp++] = ' ';	
+		}
 	}
 	printf("\nEnter correct answer (option no) for this question  :  ");
 	scanf("%d",&Q->correctAns);
+
+	// return Q;
 }
 
 int makeQuestionPaper(ques Q[]) {
@@ -241,8 +246,7 @@ int checkQB(company *user,exam *lsexam) {
 	system("clear");
 	printf("Question Bank");
 	printf("\n-------------------------------------------\n\n");
-	// exam *lsexam = (exam *)malloc(sizeof(exam));
-	FILE *file = fopen(".databaseExam","rb");
+	FILE *file = fopen(".databaseExam","rb+");
 	bool chc = false;
 	if (file != NULL) {
 		while(!feof(file)) {
@@ -251,8 +255,7 @@ int checkQB(company *user,exam *lsexam) {
 				chc = true;
 			}
 		}
-	}	
-	fclose(file);
+	}
 	if (!chc) {
 		printf("\nYou didn't Set a question paper yet...Go to Set an Exam");
 		printf("\n");
@@ -263,9 +266,33 @@ int checkQB(company *user,exam *lsexam) {
 }
 
 int editQB(company *user) {
+	system("clear");
+	printf("Question Bank");
+	printf("\n-------------------------------------------\n\n");
+	
 	exam *lsexam = (exam *)malloc(sizeof(exam));
-	int k = checkQB(user,lsexam);
-	if (k==-1) return -1;
+	FILE *file = fopen(".databaseExam","rb+");
+	
+	bool chc = false;
+	if (file != NULL) {
+		while(!feof(file)) {
+			fread(lsexam,sizeof(exam),1,file);
+			if (strcmp(lsexam->Cmpy.emailid,user->emailid) ==0) {
+				chc = true;
+				break;
+			}
+		}
+	} else {
+		return -1;
+	}
+
+	if (!chc) {
+		printf("\nYou didn't Set a question paper yet...Go to Set an Exam");
+		printf("\n");
+		sleep(2);
+		return -1;
+	}
+	int k;
 	printf("\nEnter the question number you want to change  :  ");
 	scanf("%d",&k);
 	if (k>lsexam->countQues) {
@@ -276,7 +303,15 @@ int editQB(company *user) {
 	system("clear");
 	printf("\nQuestion Number - %d\n",k);
 	printf("\n-------------------------------------------\n\n");
-	addQuestion(&lsexam->Q[k-1]);
+	ques QQ;
+	addQuestion(&QQ);
+	lsexam->Q[k-1] = QQ;
+	printf("%s",lsexam->Q[k-1].question);
+
+	fseek(file,-sizeof(exam),SEEK_CUR);
+	fwrite(lsexam,sizeof(exam),1,file);
+	fclose(file);
+
 	printf("\n");
 	system("clear");
 	printf("Question Paper Updated Successfully\n");
@@ -286,8 +321,28 @@ int editQB(company *user) {
 
 int viewQB(company *user) {
 	exam *lsexam = (exam *)malloc(sizeof(exam));
-	int k = checkQB(user,lsexam);
-	if (k==-1) return -1;
+	system("clear");
+	printf("Question Bank");
+	printf("\n-------------------------------------------\n\n");
+	FILE *file = fopen(".databaseExam","rb+");
+	bool chc = false;
+	if (file != NULL) {
+		while(!feof(file)) {
+			fread(lsexam,sizeof(exam),1,file);
+			if (strcmp(lsexam->Cmpy.emailid,user->emailid) ==0) {
+				chc = true;
+			}
+		}
+	}
+	if (!chc) {
+		printf("\nYou didn't Set a question paper yet...Go to Set an Exam");
+		printf("\n");
+		sleep(2);
+		fclose(file);
+		return -1;
+	}
+	fclose(file);
+	int k;
 	for (k = 0;k<lsexam->countQues;k++) {
 		printf("\n\nQuestion %d.",k+1);
 		printf("\n%s?",simplify(lsexam->Q[k].question));
@@ -327,6 +382,39 @@ void questionbank(company *user) {
 	return ;
 }
 
+void changePassword(company *user,char filename[]) {
+	system("clear");
+	printf("Changing Password(Security Settings)");
+	printf("\n-------------------------------------------\n\n");
+	company *u = (company *)malloc(sizeof(company));
+	FILE *file = fopen(filename,"rb+");
+	if (file != NULL) {
+		while(!feof(file)) {
+			fread(u,sizeof(company),1,file);
+			if (strcmp(u->emailid,user->emailid) == 0) {
+				char *t1, *t2;
+				do {
+			  		 // encrypted password feature
+				    t1 = getpass("\nSet your new Password (Password won't be shown to maintain "
+				                 "Secrecy) :  ");
+				    t2 = getpass("\nRe-Type your new Password again to Confirm :  ");
+				} while (strcmp(t1, t2) != 0);
+				strcpy(u->pswrd,t1);
+				fseek(file,-sizeof(company),SEEK_CUR);
+				fwrite(u,sizeof(company),1,file);
+				fclose(file);
+				system("clear");
+				printf("\nPassword Updated Successfully");
+				printf("\n");
+				sleep(2);
+				return ;
+			}
+		}
+	}
+	printf("\nError While Changing Password...Please try again");
+	return ;
+}
+
 void homepageC(company *user) {
   bool done = false;
 
@@ -351,7 +439,7 @@ void homepageC(company *user) {
       case QB: questionbank(user);break;
       case TE : makeexam(user);
               break;
-      case CP : 
+      case CP : changePassword(user,".databaseC");
               break;
       case LO: return ;
       default :"\nPlease Enter a Valid Choice";
@@ -378,10 +466,9 @@ void loginCompany() {
   FILE *cf = fopen(".databaseC", "rb");
   while (!feof(cf)) {
     fread(user, sizeof(company), 1, cf);
-    if (strcmp(user->emailid, em) == 0) {
+    if (strcmp(user->emailid, em) == 0 ) {
       getKey = user->pswrd;
       chc = true;
-      break;
     }
   }
 
@@ -410,7 +497,6 @@ void registerStudent() {
   FILE *cf = fopen(".databaseS", "rb");
   while (!feof(cf)) {
     fread(newbie, sizeof(student), 1, cf);
-    printf("%s\n", newbie->stud.name);
     if (strcmp(newbie->stud.name, sname) == 0) {
       fclose(cf);
       free(newbie);
@@ -436,9 +522,89 @@ void registerStudent() {
   return;
 }
 
-void homepageS() {
-  system("clear");
-  printf("\nLogin Successful\n");
+void enroll4exam(student *user) {
+	system("clear");
+
+	char cname[MAXLEN];
+	printf("\nEnter name of the course for exam  :  ");
+	fgets(cname,MAXLEN,stdin);
+	fgets(cname,MAXLEN,stdin);
+	
+	exam *lsexam = (exam *)malloc(sizeof(exam));
+	FILE *file = fopen(".databaseExam","rb");
+	bool chc = false;
+	if (file != NULL) {
+		while(!feof(file)) {
+			fread(lsexam,sizeof(exam),1,file);
+			if (strcmp(lsexam->coursename,cname) ==0) {
+				chc = true;
+			}
+		}
+	}
+	if (!chc) {
+		printf("\nSorry ..We couldn't find any course that matches your choice");
+		printf("\nPlease Try after some time");
+		printf("\n");
+		fclose(file);
+		sleep(2);
+		return ;
+	}
+	fclose(file);
+
+	lsexam->st[lsexam->countSt] = *user;
+	int k = 0;
+	for (;k<lsexam->countTslots;k++) {
+		printf("\nTime Slot %d",k+1);
+		printf("\nStart Time - %s , End Time - %s",lsexam->tS[k].starttime,lsexam->tS[k].endtime);
+		printf("\n---------------------o-------------------------");
+	}
+	printf("\n Choose any time slot from the above  :  ");
+	scanf("%d",&k);
+	lsexam->st[lsexam->countSt++].chosenSlot = k;
+
+	file = fopen(".databaseExam", "a");
+	  if (file != NULL) {
+	    fwrite(lsexam, sizeof(exam), 1, file);
+	    fclose(file);
+	  }
+	printf("\n");
+	system("clear");
+	printf("Student Successfully Enrolled for the exam");
+	sleep(2);
+	return;
+}
+
+void homepageS(student *user) {
+  bool done = false;
+
+  while(1) {
+    system("clear");
+    if (!done) {
+      done = !done;
+      printf("\nLogin Successful\n");
+    }
+    printf("\n1.View List of Courses enrolled for the exam");
+    printf("\n2.Enroll for an exam");
+    printf("\n3.Start Exam");
+    printf("\n4.Change Password");
+    printf("\n5.Log out");
+    printf("\nEnter a choice from the above  :  ");
+    int choice;
+    
+    scanf("%d",&choice);
+    switch (choice) {
+      case 1: /*viewListC(user);*/
+              break;
+      case 2: //enroll4exam(user);break;
+      case 3 : /*startexam(user);*/
+              break;
+      case 4 : changePassword(&user->stud,".databaseS");
+              break;
+      case 5: return ;
+      default :"\nPlease Enter a Valid Choice";
+      			sleep(2);
+    }
+  }
   return;
 }
 
@@ -469,7 +635,7 @@ void loginStudent() {
   int status = authenticate(chc, getKey);
   if (status == -1)
     return;
-  return homepageS();
+  return homepageS(user);
 }
 
 void loginAdmin() {
