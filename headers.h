@@ -1,3 +1,15 @@
+/* 
+ * File:   headers.h
+ * Author: Adha Ranjith Kumar
+ * Roll No: 15CS30002
+ * Project : P14: Examination Management System
+ * TA: Satendra Kumar
+ * Created on January 16, 2017, 12:19 PM
+ */
+
+#ifndef HEADERS_H
+#define	HEADERS_H
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,7 +17,7 @@
 #include <unistd.h>
 
 
-//Good Practise to keep hashdefines instead of using const numbers in DEBUG mode
+//Good Practise to keep hash defines instead of using const numbers in "DEBUG" mode
 #define MAXLEN 30
 #define MAXT 10
 #define MAXLENQB 50
@@ -24,6 +36,9 @@ enum homeC { VL = 1, QB, TE, CP, LO };
 /// sanity typedef in that case) .///
 typedef enum { false, true } bool;
 
+
+//all details of company in this struct
+//this struct is used in student also to erase redundancy
 struct _company {
     char name[MAXLEN];
     char emailid[MAXLEN];
@@ -31,12 +46,13 @@ struct _company {
     char pswrd[MAXLEN];
     char mobno[10];
     bool doneExam;
-    // TO-DO
-    // char *AboutMe;
+    // TO-DO additional
+    // char *AboutMe;  // Not needed I guess
 };
 
 typedef struct _company company;
 
+//Student details also include rollno and chosenslot for exam
 struct _student {
     company stud;
     char rollno[10];
@@ -63,6 +79,7 @@ struct _timeslot {
 
 typedef struct _timeslot timeslot;
 
+//Struct for exam
 struct _exam {
     company Cmpy;
     student st[MAXCAPACITY];
@@ -73,8 +90,12 @@ struct _exam {
     int countQues;
     timeslot tS[MAXT]; // 24-hour format
     int countTslots;
+    long double totaltime;
     int markscorr;
     int marksneg;
 };
 
 typedef struct _exam exam;
+
+#endif	/* HEADERS_H */
+

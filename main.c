@@ -1,26 +1,43 @@
+/* 
+ * File:   main.c
+ * Author: Adha Ranjith Kumar
+ * Roll No: 15CS30002
+ * Project : P14: Examination Management System
+ * TA: Satendra Kumar
+ * Created on January 16, 2017, 12:19 PM
+ */
+
 #include "headers.h"
 
+// run is a function to provoke welcome page
 void run();
 
 int main(int argv, char **argc)
 {
+    // main function is generally an outer layer to a inner function call.
     run();
     return 0;
 }
 
-///Clang-Format 3.7 is applied in this directory to improve indentation and fix whitespace issues.
+//Clang-Format 3.7 is applied in this directory to improve 
+//indentation and fix whitespace issues.
 
 //inline specifier to save the overhead of a function call.
+//simp converts string to corresponding integer
 inline int simp(char c[])
 {
     int n = 0, i, len = strlen(c);
     for (i = 0; i < len; i++) {
-        if (c[i] != ' ' && c[i] != '\n')
+        if (c[i] != ' ' && c[i] != '\n' && c[i] != ':')
             n = c[i] - '0' + 10 * n;
+        if (c[i] == ':') {
+            return n;
+        }
     }
     return n;
 }
 
+//checks validity of mobile number
 bool checkValiditymob(char *mob)
 {
     int j;
@@ -38,23 +55,50 @@ bool checkValiditymob(char *mob)
     return ch;
 }
 
-char *simplify(char str[])
+//removes non-ascii characters and vague characters
+inline char *simplify(char str[])
 {
     int i, len = strlen(str);
     for (i = 0; i < len; i++) {
         if (str[i] == '\n' || str[i] == '\t' || str[i] > 122
-            || (str[i] < 65 && (str[i] < 48 || str[i] > 57)))
+            || (str[i] < 65 && (str[i] < 48 || str[i] > 57)) && str[i]!='+')
             str[i] = ' ';
     }
     return str;
 }
 
+//checks validity of email-id
+inline bool checkGmail(char *mail) {
+    int i =0,len = strlen(mail);
+    for (;i <len;i++) {
+        if (mail[i]=='@') {
+            if (!(i>0 && i<(len-5))) {
+                return false;
+            }
+        } 
+    }
+    if (mail[len-1] == 'm' && mail[len-2] == 'o' && mail[len-3] == 'c' && mail[len-4] == '.') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//for registering user 
+//user can be a student or a company
 void registerUser(company *newbie, char *cname)
 {
     strcpy(newbie->name, cname);
 
     printf("\nEnter your eMail-ID  :  ");
-    scanf("%s", newbie->emailid);
+    bool temp = true;
+    do {
+        scanf("%s", newbie->emailid);
+        temp = checkGmail(newbie->emailid);
+        if (!temp) {
+            printf("\nPlease enter a Valid Email-ID  :  ");
+        }
+    }while(!temp);
 
     bool ch = true;
     printf("\nEnter your Contact Number  :  ");
@@ -81,6 +125,7 @@ void registerUser(company *newbie, char *cname)
     strcpy(newbie->pswrd, t1);
 }
 
+//asks password using getpass and authenticates the user
 int authenticate(bool chc, char *getKey)
 {
     if (!chc) {
@@ -107,6 +152,7 @@ int authenticate(bool chc, char *getKey)
     return 0;
 }
 
+//ADT for company's register user
 void registerCompany()
 {
     system("clear");
@@ -148,6 +194,7 @@ void registerCompany()
     return;
 }
 
+//adds a question and fills in Q
 void addQuestion(ques *Q)
 {
     printf("Enter the question  (press ? to end question):  \n");
@@ -176,6 +223,7 @@ void addQuestion(ques *Q)
     scanf("%d", &Q->correctAns);
 }
 
+//Outer Layer for making a question paper
 int makeQuestionPaper(ques Q[])
 {
     system("clear");
@@ -194,6 +242,7 @@ int makeQuestionPaper(ques Q[])
     return countQues;
 }
 
+//for making an exam by a company
 void makeexam(company *user)
 {
     system("clear");
@@ -247,6 +296,8 @@ void makeexam(company *user)
     int k = 1;
     char tSlot[MAXT];
     for (; k != newexam->countTslots + 1; k++) {
+        printf("\nEnter Duration for %d slot (in hours) :  ",k);
+        scanf("%Ld",&newexam->totaltime);
         printf("\nEnter start time for time slot %d (HH:MM format and in "
                "24-hour type):  ",
                k);
@@ -259,7 +310,6 @@ void makeexam(company *user)
         strcpy(newexam->tS[k - 1].endtime, tSlot);
         printf("\nEnter date of this slot  :  ");
         scanf("%s", newexam->tS[k - 1].date);
-        printf("%s bc", newexam->tS[k - 1].date);
         printf("\nEnter month of this slot  :  ");
         scanf("%s", newexam->tS[k - 1].month);
         printf("\nEnter year of this slot  :  ");
@@ -287,6 +337,8 @@ void makeexam(company *user)
     return;
 }
 
+
+//Company can also edit a question bank using edit QB
 int editQB(company *user)
 {
     system("clear");
@@ -343,6 +395,7 @@ int editQB(company *user)
     return 0;
 }
 
+//Company can also view the question paper using view QB
 int viewQB(company *user)
 {
     exam *lsexam = (exam *)malloc(sizeof(exam));
@@ -385,6 +438,7 @@ int viewQB(company *user)
     return 0;
 }
 
+//Outer Layer of question bank details
 void questionbank(company *user)
 {
     while (1) {
@@ -418,6 +472,9 @@ void questionbank(company *user)
     return;
 }
 
+
+//function to change password 
+//rewrites file to update password
 void changePassword(company *user, char filename[])
 {
     system("clear");
@@ -454,6 +511,7 @@ void changePassword(company *user, char filename[])
     return;
 }
 
+//opens a list of students enrolled for the company
 void viewListStudents(company *user)
 {
     exam *lsexam = (exam *)malloc(sizeof(exam));
@@ -478,6 +536,9 @@ void viewListStudents(company *user)
                 break;
             }
         }
+        if (cnt == 0) {
+            printf("\nNo student enrolled in your course as of now");
+        }
         getchar();
         printf("\n\nPress Any Key to continue");
         getchar();
@@ -486,6 +547,7 @@ void viewListStudents(company *user)
     }
 }
 
+//Homepage for the company
 void homepageC(company *user)
 {
     bool done = false;
@@ -528,6 +590,7 @@ void homepageC(company *user)
     return;
 }
 
+//Login Page for the company
 void loginCompany()
 {
     system("clear");
@@ -559,6 +622,7 @@ void loginCompany()
     return homepageC(user);
 }
 
+//registers a student (outer layer)
 void registerStudent()
 {
     system("clear");
@@ -569,7 +633,7 @@ void registerStudent()
     printf("Please Enter following details");
     printf("\nEnter your name  :  ");
 
-    fgets(sname, MAXLEN, stdin);
+    fgets(sname, MAXLEN, stdin); //fake fgets to skip endl character
     fgets(sname, MAXLEN, stdin);
 
     student *newbie = (student *)malloc(sizeof(student));
@@ -603,6 +667,7 @@ void registerStudent()
     return;
 }
 
+//list of courses that a student enrolled in
 int viewListCourses(student *user, bool isdirectCall)
 {
     exam *lsexam = (exam *)malloc(sizeof(exam));
@@ -662,6 +727,7 @@ int viewListCourses(student *user, bool isdirectCall)
     return 0;
 }
 
+//student : for enrolling in a exam
 void enroll4exam(student *user)
 {
     system("clear");
@@ -727,6 +793,7 @@ void enroll4exam(student *user)
     return;
 }
 
+//Instructions before starting exam
 void showInstructions(exam *lsexam)
 {
     printf("\nInstructions for this exam");
@@ -740,19 +807,26 @@ void showInstructions(exam *lsexam)
     printf("\n5.you have choice to jump to any question you want");
     printf("\nPress any key to start exam");
     getchar();
+    getchar();
     return;
 }
 
 void startExamActual(student *user, exam *lsexam)
 {
-    showInstructions();
-    // add time limit check
+    showInstructions(lsexam);
+    printf("\n");
     system("clear");
-    printf("EXAM !!");
+    printf("\nEXAM STARTS!!");
     printf("\n\n-------------------------------------------\n\n");
+    printf("\n");
+    sleep(1);
     int i, k;
     bool usedUpAns[MAXQUES] = {false};
-    getchar();
+    
+    time_t start_exam,temp;
+    time(&start_exam);
+    
+    
     for (k = 0; k < lsexam->countQues; k++) {
         system("clear");
         printf("\n\nQuestion %d.", k + 1);
@@ -763,17 +837,33 @@ void startExamActual(student *user, exam *lsexam)
         printf("\nPlease tell your option (Enter 0 to switch to a different "
                "question) :  ");
         char ch;
-        scanf("%c", &ch);
+        while(scanf("%c", &ch)) {
+            if (ch == '0' || ch == 'A' || ch == 'B' || ch == 'C' || ch == 'D')
+                break;
+            if (ch!='\n')
+                printf("\nEnter a Valid Choice  :  ");
+        }
+        
         if (o == '0') {
             printf("\nEnter the question number you want to jump to  :  ");
             scanf("%d", &o);
             k = o - 1;
         } else {
-            if (lsexam->Q[k].correctAns - 1 + 'A' == o) {
+            if (lsexam->Q[k].correctAns - 1 + 'A' == ch) {
                 usedUpAns[k] = true;
             }
             printf("\nSaving your option and going to next question\n");
             printf("\n");
+            time(&temp);
+            long double tt= difftime(temp ,start_exam);
+            printf("%Ld time is \n", tt);
+            if (tt >= lsexam->totaltime*36000) {
+                printf("\n\nTime - UP......");
+                sleep(1);
+                break;
+            } else {
+                printf("\n Time Left - %d hours",(tt/3600));
+            }
             sleep(1);
         }
     }
@@ -782,19 +872,43 @@ void startExamActual(student *user, exam *lsexam)
         if (usedUpAns[i])
             numcorr++;
     }
+    system("clear");
     printf("\nYour Exam is Completed ...thanks for Choosing our site for exam");
-    printf("\nPress any Key to View your results\n\n");
+    printf("\nPress ENTER to View your results\n\n");
     getchar();
+    getchar();
+    
     printf("\n\n Exam on %s", lsexam->coursename);
-    printf("\n\n You Got %d out of %d marks", numcorr * lsexam->markscorr,
+    printf("\n\n You Got (%d) out of (%d) marks", numcorr * lsexam->markscorr,
            lsexam->countQues * lsexam->markscorr);
-    printf("\n Total Number of Questions - %d", lsexam->countQues);
-    printf("\n Total Number of Correct Answers - %d", numcorr);
-    printf("\n Total Number of Wrong Questions - %d",
+    printf("\n Total Number of Questions - (%d)", lsexam->countQues);
+    printf("\n Total Number of Correct Answers - (%d)", numcorr);
+    printf("\n Total Number of Wrong Questions - (%d)",
            lsexam->countQues - numcorr);
     printf("\n");
-    printf("\nPress any Key to Go back\n\n");
-    getchar();
+    printf("\nEnter 1 to print the results in a local txt file");
+    printf("\nEnter 2 t Go Back\n : ");
+    
+    char c = getchar();
+    if (c == '1') {
+        printf("\nSaving to results.txt file\n");
+        sleep(1);
+        system("touch results.txt");
+        FILE *file = fopen("results.txt","w");
+        if (file != NULL) {
+            fprintf(file,"\n\n Exam on %s", lsexam->coursename);
+            fprintf(file,"\n\n You Got (%d) out of (%d) marks", numcorr * lsexam->markscorr,
+                   lsexam->countQues * lsexam->markscorr);
+            fprintf(file,"\n Total Number of Questions - (%d)", lsexam->countQues);
+            fprintf(file,"\n Total Number of Correct Answers - (%d)", numcorr);
+            fprintf(file,"\n Total Number of Wrong Questions - (%d)",
+                   lsexam->countQues - numcorr);
+            fprintf(file,"\n");
+            fclose(file);
+        } else {
+            printf("Error while writing to file \n");
+        }
+    }
     return;
 }
 
@@ -805,7 +919,7 @@ void startexam(student *user)
     if (courseID < 0) {
         return;
     }
-
+    system("clear");
     printf("EXAM ZONE");
     printf("\n-------------------------------------------\n\n");
 
@@ -844,7 +958,7 @@ void startexam(student *user)
         printf("\nYou haven't enrolled for this exam");
         return;
     }
-
+    startExamActual(user, lsexam);
     // Check if this time is the correct time slot
     time_t rawtime;
     struct tm *info;
@@ -864,7 +978,7 @@ void startexam(student *user)
         && (buffer[2][1] == lsexam->tS[chSlot].date[1])) {
         if (strcmp(buffer[3], lsexam->tS[chSlot].starttime) >= 0
             && strcmp(buffer[3], lsexam->tS[chSlot].endtime) <= 0) {
-            printf("\nStarting your exam ....");
+            printf("\nStarting your exam on %s....",lsexam->coursename);
             printf("\n");
             sleep(1);
             startExamActual(user, lsexam);
@@ -877,10 +991,11 @@ void startexam(student *user)
            lsexam->tS[chSlot].month, lsexam->tS[chSlot].year,
            lsexam->tS[chSlot].starttime, lsexam->tS[chSlot].endtime);
     printf("\n");
-    sleep(1);
+    sleep(2);
     return;
 }
 
+//homepage for student
 void homepageS(student *user)
 {
     bool done = false;
@@ -954,6 +1069,7 @@ void loginStudent()
     return homepageS(user);
 }
 
+//clears all the data in the database
 void resetDB()
 {
     char filenames[4][30];
@@ -977,6 +1093,7 @@ void resetDB()
     return;
 }
 
+//homepage for admin
 void homepageA()
 {
     system("clear");

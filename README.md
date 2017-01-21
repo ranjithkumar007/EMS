@@ -17,5 +17,13 @@ A student should enroll for a exam and wait for his slot and then can start taki
 A company makes an exam ,adds question paper (can edit later) and knows list  of students enrolled for their exam.
 admin is myself who can reset the database.
 
+
+###TO-DO's
+- [ ] use java to make life easier
+- [ ] use SQL for database
+- [ ] add countdown timer
+- [ ] Improve GUI using Swing Library
+- [ ] Send E-Mail Notifications
+
 ###Found bugs while using or any feedback
 mail to [Ranjith Kumar](mailto:ranjith.dakshana2015@gmail.com)
