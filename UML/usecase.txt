@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+
+rectangle "Online Examination Management System" {
+skinparam packageStyle rectangle
+actor Admin
+actor student
+actor institute as insti
+
+student -- (Registration)
+(Registration) -- insti
+
+student -- (Login)
+(Login) -- insti
+Admin-- (Login)
+
+(Registration) ...> (Fill details form) :<<include>>
+(Login) ...> (Authentication) :<<include>>  
+
+student -- (Reset Password)
+(Reset Password) -- insti
+Admin-- (Reset Password)
+
+student -- (Enroll for an exam)
+student -- (View Courses enrolled)
+student -- (Give Exam)
+
+(Give Exam) <... (View Exam results) :<<extend>>
+(Give Exam) ...> (Question Bank) :<<include>>
+
+insti-- (Make Examination)
+(Make Examination) <... (Set Question Paper) :<<extend>>
+
+insti-- (Question Bank)
+(Question Bank) <... (Add Questions) :<<extend>>
+(Question Bank) <... (Update Questions) :<<extend>>
+(Question Bank) <... (View Questions) :<<extend>>
+(Question Bank) <... (delete Questions) :<<extend>>
+
+insti -- (View Students Enrolled)
+insti -- (View Exam results)
+
+Admin -- (Back Up Database)
+}
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+
+title "UseCase - Registration"
+
+actor User
+activate User
+participant SoftwareGUI
+activate SoftwareGUI
+database UserRecord
+User -> SoftwareGUI : Start Application
+SoftwareGUI --> User : Register/Log-In
+User -> SoftwareGUI : Request for Registration
+SoftwareGUI --> User : Enter Username
+User -> SoftwareGUI : Username
+SoftwareGUI --> User : Enter Password
+User -> SoftwareGUI : password
+SoftwareGUI --> User : Fill Basic Details form
+User -> SoftwareGUI : Details
+SoftwareGUI --> UserRecord : Entry
+deactivate SoftwareGUI
+activate UserRecord
+UserRecord -> SoftwareGUI :
+activate SoftwareGUI
+SoftwareGUI --> User : Successful Registration
+note left : Registration Complete
+deactivate User
+deactivate SoftwareGUI
+deactivate UserRecord
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+[*] --> Login : /get user credentials
+Login -->Login : authentication failed
+Login --> StudentHomePage : student
+StudentHomePage : do/ enroll for exam
+StudentHomePage : do/ give exam
+StudentHomePage : get/ courses enrolled
+StudentHomePage : do/ reset password
+Login --> InstituteHomePage : institute
+InstituteHomePage : do/ register an exam
+InstituteHomePage : do/ Open Question Bank
+InstituteHomePage : get/ students enrolled
+InstituteHomePage : get/ Exam results
+InstituteHomePage : do/ reset password
+InstituteHomePage --> [*] : Logout 
+InstituteHomePage --> [*] : Logout
+@enduml

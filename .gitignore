@@ -1,3 +1,5 @@
 *.out
 p
 *~
+*tar.gz
+*.zip

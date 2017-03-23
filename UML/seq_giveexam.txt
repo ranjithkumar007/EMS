@@ -1,0 +1,50 @@
+@startuml
+
+title "Student - Give Exam"
+
+actor Student 
+activate Student 
+participant SoftwareGUI
+activate SoftwareGUI
+database ExamRecord
+Student  -> SoftwareGUI : Register for an Exam
+SoftwareGUI --> Student  : Enter Coursename
+deactivate SoftwareGUI
+Student  -> SoftwareGUI : coursename
+activate SoftwareGUI
+SoftwareGUI --> ExamRecord  : search for coursename
+deactivate SoftwareGUI
+activate ExamRecord
+ExamRecord -> ExamRecord : search in database
+ExamRecord -> SoftwareGUI : status of search
+deactivate ExamRecord
+activate SoftwareGUI
+SoftwareGUI --> ExamRecord  : get Question Paper
+deactivate SoftwareGUI
+activate ExamRecord
+ExamRecord -> ExamRecord  : Search for Question Paper
+ExamRecord -> SoftwareGUI  : Question Paper
+deactivate ExamRecord
+activate SoftwareGUI
+SoftwareGUI --> Student  : Display Question Paper
+deactivate SoftwareGUI
+Student  -> SoftwareGUI : select answers
+activate SoftwareGUI
+SoftwareGUI --> ExamRecord  : forward answers
+deactivate SoftwareGUI
+activate ExamRecord
+ExamRecord ->  ExamRecord : evaluate and update
+ExamRecord -> SoftwareGUI  : exam results
+deactivate ExamRecord
+activate SoftwareGUI
+SoftwareGUI --> Student : show results
+deactivate SoftwareGUI
+Student -> SoftwareGUI : Close Exam Portal
+activate SoftwareGUI
+SoftwareGUI --> Student  : Successfully completed Exam
+note left: End of Exam
+deactivate Student 
+deactivate SoftwareGUI
+deactivate ExamRecord
+
+@enduml

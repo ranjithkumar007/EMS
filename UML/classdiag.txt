@@ -1,0 +1,83 @@
+@startuml
+
+title Class Diagram
+
+class User {
+  # String name
+  # String email_id
+  # String password
+  # String Address
+  + String get_name()
+  + String get_email_id()
+  + String get_pasword()
+  + String get_address()
+  + void set_name()
+  + void set_email_id()
+  + void set_pasword()
+  + void set_address()
+}
+
+class Student {
+    - String rollno
+    - String Institute
+    + String get_rollno()
+    + String get_institute()
+    + void set_rollno()
+    + void set_institute()
+    + String[] get_courses_enrolled()
+}
+class Admin {
+    + void backupdb();
+}
+class Institute {
+    - String coursename
+    + void set_coursename()
+    + String get_coursename()
+    + String[] get_students_enrolled()
+    + void openQuestionBank()
+    + void set_new_Exam()
+}
+class QuestionBank {
+    - int numofQues
+    - int negativescore
+    - int positivescore
+    / int totalscore (derived)
+    + int get_numQues()
+    + void set_numQues()
+    + int get_negscore()
+    + void set_negscore()
+    + int get_posscore()
+    + void set_posscore()
+}
+class question {
+    - int quesnum
+    - String ques
+    - String[4] options
+    - int correct_opt
+    + int get_quesnum()
+    + void set_quesnum()
+    + String get_ques()
+    + void set_ques()
+    + int get_posscore()    
+    + String[] get_options()
+    + void set_options()
+    + int get_correctopt()
+    + void set_correctopt()
+}
+class Exam {
+    - String[2][] timeslots
+    + void get_questionbank()
+}
+
+question  "many" *-up- "1" QuestionBank: Composition
+QuestionBank  "1" *-up- "1" Exam: Composition
+Institute -> Exam
+Student -> Exam
+User <|-down- Student: Generalisation
+User <|-down- Admin: Generalisation
+User <|-down- Institute: Generalisation
+User "1" *-up- "many" Student: Composition
+User "1" *-up- "many" Institute: Composition
+User "1" *-up- "1" Admin: Composition
+
+@enduml
