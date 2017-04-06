@@ -1,0 +1,30 @@
+# Examination Management System
+
+Use Cases Covered : 
+1. Student and Company Registration.
+	- Features Included
+		* Validation of mobile number and emailid
+2. Student and Company Login.
+	- Features Included
+		* One Time Password (OTP)
+3. Student Home Page
+	- Features included 
+		* Update Profile
+		* Show Jobs
+
+Additionally,
+- Company Home Page
+	* Post Job (As this is essential to add `Show Jobs` feature)
+		
+
+## Prerequisites
+`jXDatePicker` must be added as a plugin in netbeans.
+see here for detailed instructions on adding it.
+https://davidwburns.wordpress.com/2012/06/19/add-jxdatepicker-to-the-netbeans-swing-controls-palette/ 
+
+## How to Run ?
+Open this project from `netbeans` and run it.
+
+## Note 
+you can't run this directly using `java -jar dist/swingpractise.jar` as `jXDatePicker` isn't available by default.
+
